@@ -444,14 +444,14 @@ class CleanPuffeRL:
                     "reward/reward_buffer_len": len(self.reward_buffer),
                 },
             )
-        if (
-            self.taught_cut
-            and len(self.reward_buffer) == self.reward_buffer.maxlen
-            and reward_var < 2.5e-3
-        ):
-            self.reward_buffer.clear()
-            # reset lr update if the reward starts stalling
-            self.lr_update = 1.0
+        # if (
+        #     self.taught_cut
+        #     and len(self.reward_buffer) == self.reward_buffer.maxlen
+        #     and reward_var < 2.5e-3
+        # ):
+        #     self.reward_buffer.clear()
+        #     # reset lr update if the reward starts stalling
+        #     self.lr_update = 1.0
 
         eval_profiler.stop()
 
@@ -699,9 +699,10 @@ class CleanPuffeRL:
 
         state = {
             "optimizer_state_dict": self.optimizer.state_dict(),
-            "global_step": self.global_step,
-            "agent_step": self.global_step,
+            "global_step": self.total_agent_steps,  # TODO: fix global_step, agent_step
+            "agent_step": self.total_agent_steps,
             "update": self.update,
+            "lr_update": self.lr_update,
             "model_name": model_name,
         }
 
