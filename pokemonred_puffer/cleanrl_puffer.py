@@ -221,6 +221,10 @@ class CleanPuffeRL:
         self.num_agents = self.pool.agents_per_env
         total_agents = self.num_agents * config.num_envs
 
+        self.agent = pufferlib.emulation.make_object(
+            agent, agent_creator, [self.pool.driver_env], agent_kwargs
+        )
+
         # If data_dir is provided, load the resume state
         resume_state = {}
         path = os.path.join(config.data_dir, exp_name)
@@ -228,14 +232,10 @@ class CleanPuffeRL:
             trainer_path = os.path.join(path, "trainer_state.pt")
             resume_state = torch.load(trainer_path)
             model_path = os.path.join(path, resume_state["model_name"])
-            self.agent = torch.load(model_path, map_location=self.device)
+            self.agent.load_state_dict(torch.load(model_path, map_location=self.device))
             print(
                 f'Resumed from update {resume_state["update"]} '
                 f'with policy {resume_state["model_name"]}'
-            )
-        else:
-            self.agent = pufferlib.emulation.make_object(
-                agent, agent_creator, [self.pool.driver_env], agent_kwargs
             )
 
         self.global_step = resume_state.get("global_step", 0)
@@ -688,14 +688,14 @@ class CleanPuffeRL:
         if not os.path.exists(path):
             os.makedirs(path)
 
-        model_name = f"model_{self.update:06d}.pt"
+        model_name = f"model_{self.update:06d}_state.pth"
         model_path = os.path.join(path, model_name)
 
         # Already saved
         if os.path.exists(model_path):
             return model_path
 
-        torch.save(self.agent, model_path)
+        torch.save(self.agent.state_dict(), model_path)
 
         state = {
             "optimizer_state_dict": self.optimizer.state_dict(),
