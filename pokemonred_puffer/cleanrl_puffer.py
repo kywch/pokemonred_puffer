@@ -255,7 +255,7 @@ class CleanPuffeRL:
             self.n_params = sum(p.numel() for p in self.agent.parameters() if p.requires_grad)
             print(f"Model Size: {self.n_params//1000} K parameters")
 
-        if self.opt_state is not None:
+        if config.load_optimizer_state is True and self.opt_state is not None:
             self.optimizer.load_state_dict(resume_state["optimizer_state_dict"])
 
         # Create policy pool
