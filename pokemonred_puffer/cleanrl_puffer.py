@@ -317,13 +317,13 @@ class CleanPuffeRL:
         self.taught_cut = False
 
         self.infos = {}
-        self.log = False
+        # self.log = False
 
     @pufferlib.utils.profile
     def evaluate(self):
         config = self.config
         # TODO: Handle update on resume
-        if self.log and self.wandb is not None and self.performance.total_uptime > 0:
+        if self.wandb is not None and self.performance.total_uptime > 0:
             self.wandb.log(
                 {
                     "SPS": self.SPS,
@@ -339,7 +339,7 @@ class CleanPuffeRL:
                     },
                 },
             )
-            self.log = False
+            # self.log = False
 
         self.policy_pool.update_policies()
         env_profiler = pufferlib.utils.Profiler()
@@ -434,16 +434,16 @@ class CleanPuffeRL:
             with env_profiler:
                 self.pool.send(actions)
 
-        self.reward_buffer.append(r.cpu().sum().numpy())
-        # Probably should normalize the rewards before trying to take the variance...
-        reward_var = np.var(self.reward_buffer)
-        if self.log and self.wandb is not None:
-            self.wandb.log(
-                {
-                    "reward/reward_var": reward_var,
-                    "reward/reward_buffer_len": len(self.reward_buffer),
-                },
-            )
+        # self.reward_buffer.append(r.cpu().sum().numpy())
+        # # Probably should normalize the rewards before trying to take the variance...
+        # reward_var = np.var(self.reward_buffer)
+        # if self.log and self.wandb is not None:
+        #     self.wandb.log(
+        #         {
+        #             "reward/reward_var": reward_var,
+        #             "reward/reward_buffer_len": len(self.reward_buffer),
+        #         },
+        #     )
         # if (
         #     self.taught_cut
         #     and len(self.reward_buffer) == self.reward_buffer.maxlen
@@ -456,10 +456,11 @@ class CleanPuffeRL:
         eval_profiler.stop()
 
         self.total_agent_steps += padded_steps_collected
-        new_step = np.mean(self.infos["learner"]["stats/step"])
-        if new_step > self.global_step:
-            self.global_step = new_step
-            self.log = True
+        # new_step = np.mean(self.infos["learner"]["stats/step"])
+        # if new_step > self.global_step:
+        #     self.global_step = new_step
+        #     self.log = True
+        self.global_step += padded_steps_collected
         self.reward = torch.mean(self.rewards).float().item()
         self.SPS = int(padded_steps_collected / eval_profiler.elapsed)
 
@@ -695,7 +696,8 @@ class CleanPuffeRL:
         if os.path.exists(model_path):
             return model_path
 
-        torch.save(self.agent.state_dict(), model_path)
+        # To handleboth uncompiled and compiled self.agent, when getting state_dict()
+        torch.save(getattr(self.agent, "_orig_mod", self.agent).state_dict(), model_path)
 
         state = {
             "optimizer_state_dict": self.optimizer.state_dict(),
