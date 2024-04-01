@@ -713,6 +713,9 @@ class CleanPuffeRL:
         torch.save(state, state_path + ".tmp")
         os.rename(state_path + ".tmp", state_path)
 
+        # Also save a copy
+        torch.save(state, os.path.join(path, f"trainer_state_{self.update:06d}.pt"))
+
         print(f"Model saved to {model_path}")
 
         return model_path
