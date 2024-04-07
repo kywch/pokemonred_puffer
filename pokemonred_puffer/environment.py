@@ -809,7 +809,10 @@ class RedGymEnv(Env):
         x_pos, y_pos, map_n = self.get_game_coords()
         self.seen_coords[(x_pos, y_pos, map_n)] = 1
         self.seen_coords_since_blackout.add((x_pos, y_pos, map_n))
-        self.explore_map[local_to_global(y_pos, x_pos, map_n)] = 1
+        try:
+            self.explore_map[local_to_global(y_pos, x_pos, map_n)] = 1
+        except IndexError:
+            print(f"coord out of bounds! game: ({x_pos}, {y_pos}, {map_n})")
         # self.seen_global_coords[local_to_global(y_pos, x_pos, map_n)] = 1
         self.seen_map_ids[map_n] = 1
         self.seen_map_ids_since_blackout.add(map_n)
@@ -817,7 +820,10 @@ class RedGymEnv(Env):
     def get_explore_map(self):
         explore_map = np.zeros(GLOBAL_MAP_SHAPE)
         for (x, y, map_n), v in self.seen_coords.items():
-            gy, gx = local_to_global(y, x, map_n)
+            try:
+                gy, gx = local_to_global(y, x, map_n)
+            except IndexError:
+                gy, gx = -1, -1
             if 0 > gy >= explore_map.shape[0] or 0 > gx >= explore_map.shape[1]:
                 print(f"coord out of bounds! global: ({gx}, {gy}) game: ({x}, {y}, {map_n})")
             else:
