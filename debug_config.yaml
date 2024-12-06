@@ -91,10 +91,10 @@ train:
   seed: 1
   torch_deterministic: True
   device: cuda
-  compile: True
+  compile: False
   compile_mode: "reduce-overhead"
   float32_matmul_precision: "high"
-  total_timesteps: 1_000_000_000 # 100_000_000_000 for full games
+  total_timesteps: 2_000_000 # 100_000_000_000 for full games
   batch_size: 65536 
   minibatch_size: 2048
   learning_rate: 2.0e-4

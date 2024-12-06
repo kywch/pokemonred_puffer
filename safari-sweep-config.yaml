@@ -1,0 +1,47 @@
+env:
+  map_id_scalefactor:
+    carbs.utils.LinearSpace:
+      min: .75
+      max: 10.0
+      scale: 0.5
+train:
+  total_timesteps:
+    carbs.utils.LinearSpace:
+      min: 1_000_000 
+      max: 10_000_000
+      is_integer: True
+      scale: 500_000
+
+rewards:
+  baseline.ObjectRewardRequiredEventsMapIds:
+    reward:
+      explore_hidden_objs: 
+        carbs.utils.LogSpace:
+          min: 1.0e-7
+          max: 1.0
+          scale: 5e-5
+      explore_signs: 
+        carbs.utils.LogSpace:
+          min: 1.0e-4
+          max: 1.0
+          scale: 1e-3
+      required_event: 
+        carbs.utils.LogSpace:
+          min: 1.0e-3
+          max: 10.0
+          scale: 1.0
+      required_item: 
+        carbs.utils.LogSpace:
+          min: 1.0e-3
+          max: 10.0
+          scale: 1.0
+      exploration: 
+        carbs.utils.LogSpace:
+          min: 1.0e-3
+          max: 1.0
+          scale: 0.01
+      explore_warps: 
+        carbs.utils.LogSpace:
+          min: 1.0e-3
+          max: 10.0
+          scale: 0.005

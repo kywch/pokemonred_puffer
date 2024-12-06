@@ -227,6 +227,7 @@ def launch_sweep(
                 config={k: {"value": v} for k, v in suggestion.suggestion.items()}
             )
             sweep.schedule(run)
+
         # without this nothing updates...
         sweep_obj = sweep._sweep_obj
         if runs := sweep_obj["runs"]:
@@ -262,6 +263,9 @@ def launch_sweep(
                                 output=summary_metrics["environment/stats/required_count"],
                                 cost=summary_metrics["performance/uptime"],
                             )
+
+                            console.print(obs_in.to_dict())
+
                             carbs.observe(obs_in)
                             # Because wandb stages the artifacts we have to keep these files
                             # dangling around wasting good disk space.
