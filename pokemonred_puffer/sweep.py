@@ -217,6 +217,7 @@ def launch_sweep(
     )
 
     finished = []
+    carbs_file = f"carbs/suggestions_{sweep_id}.txt"
     while not sweep.done():
         # Taken from sweep.schedule. Limits runs to only one at a time.
         # Only one run will be scheduled at a time
@@ -253,18 +254,20 @@ def launch_sweep(
                             and "Overview/agent_steps" in summary_metrics
                             and summary_metrics["Overview/agent_steps"] > 1e6
                         ):
+                            carbs_suggestion = {
+                                k: v["value"]
+                                for k, v in json.loads(run["config"]).items()
+                                if k != "wandb_version"
+                            }
+
+                            console.print(carbs_suggestion)
+
                             obs_in = ObservationInParam(
-                                input={
-                                    k: v["value"]
-                                    for k, v in json.loads(run["config"]).items()
-                                    if k != "wandb_version"
-                                },
+                                input=carbs_suggestion,
                                 # TODO: try out other stats like required count
                                 output=summary_metrics["environment/stats/required_count"],
                                 cost=summary_metrics["performance/uptime"],
                             )
-
-                            console.print(obs_in.to_dict())
 
                             carbs.observe(obs_in)
                             # Because wandb stages the artifacts we have to keep these files
